@@ -6,7 +6,13 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!!**/dist", "!!**/coverage", "!!**/.nest", "!eslint.config.mjs"],
+    "includes": [
+      "**",
+      "!!**/dist",
+      "!!**/coverage",
+      "!!**/.nest",
+      "!eslint.config.mjs"
+    ],
     "ignoreUnknown": true
   },
   "formatter": {
@@ -28,6 +34,7 @@
       "recommended": true,
       "complexity": {
         "noArguments": "error",
+        "noExcessiveCognitiveComplexity": "warn",
         "noExtraBooleanCast": "error",
         "noUselessCatch": "error",
         "noUselessEscapeInRegex": "error",
@@ -51,6 +58,7 @@
         "noUnreachableSuper": "error",
         "noUnsafeFinally": "error",
         "noUnsafeOptionalChaining": "error",
+        "noUnusedImports": "error",
         "noUnusedLabels": "error",
         "noUnusedPrivateClassMembers": "error",
         "noUnusedVariables": "error",
@@ -64,7 +72,10 @@
         "noNamespace": "error",
         "useArrayLiterals": "error",
         "useAsConstAssertion": "error",
-        "useConst": "error"
+        "useConst": "error",
+        "useExportType": "warn",
+        "useImportType": "off",
+        "useTemplate": "warn"
       },
       "suspicious": {
         "noAsyncPromiseExecutor": "error",
@@ -80,7 +91,7 @@
         "noDuplicateObjectKeys": "error",
         "noDuplicateParameters": "error",
         "noEmptyBlockStatements": "error",
-        "noExplicitAny": "error",
+        "noExplicitAny": "warn",
         "noExtraNonNullAssertion": "error",
         "noFallthroughSwitchClause": "error",
         "noFunctionAssign": "error",
@@ -94,6 +105,7 @@
         "noRedeclare": "error",
         "noShadowRestrictedNames": "error",
         "noSparseArray": "error",
+        "noConsole": "off",
         "noUnsafeDeclarationMerging": "error",
         "noUnsafeNegation": "error",
         "noUnusedExpressions": "off",
@@ -118,10 +130,13 @@
       "attributePosition": "auto",
       "bracketSpacing": true
     },
-    "globals": ["exports"]
+    "globals": [
+      "exports"
+    ]
   },
   "json": {
     "formatter": {
+      "enabled": false,
       "trailingCommas": "none"
     }
   },
@@ -131,9 +146,19 @@
       "selfCloseVoidElements": "always"
     }
   },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
   "overrides": [
     {
-      "includes": ["**/*.d.ts"],
+      "includes": [
+        "**/*.d.ts"
+      ],
       "linter": {
         "rules": {
           "correctness": {
@@ -143,22 +168,19 @@
       }
     },
     {
-      "includes": ["test/**", "**/*.spec.ts", "**/*.e2e-spec.ts"],
+      "includes": [
+        "test/**",
+        "**/*.spec.ts",
+        "**/*.e2e-spec.ts"
+      ],
       "linter": {
         "rules": {
           "suspicious": {
-            "noConsole": "off"
+            "noConsole": "off",
+            "noExplicitAny": "off"
           }
         }
       }
     }
-  ],
-  "assist": {
-    "enabled": true,
-    "actions": {
-      "source": {
-        "organizeImports": "on"
-      }
-    }
-  }
+  ]
 }
