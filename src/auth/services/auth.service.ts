@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -43,14 +43,32 @@ export class AuthService {
     };
   }
 
-  signIn(dto: AuthDto) {
+  async signIn(dto: AuthDto) {
+    const { email, password } = dto;
+
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Incorrect email or password');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Incorrect email or password');
+    }
+
     return {
-      id: 1,
-      email: dto.email,
+      id: user.id,
+      email: user.email,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     };
   }
 
-  async generateTokens(userId: number, email: string) {
+  async generateTokens(userId: string, email: string) {
     const payload = { sub: userId, email };
 
     const accessSecret = this.configService.get<string>('JWT_ACCESS_SECRET') || 'default_access';

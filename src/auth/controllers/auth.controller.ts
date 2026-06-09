@@ -21,8 +21,14 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  login(@Body() dto: AuthDto) {
-    return this.authService.signIn(dto);
+  async login(@Body() dto: AuthDto, @Res({ passthrough: true }) response: express.Response) {
+    const user = await this.authService.signIn(dto);
+
+    const tokens = await this.authService.generateTokens(user.id, user.email);
+
+    this.setTokenCookies(response, tokens.accessToken, tokens.refreshToken);
+
+    return user;
   }
 
   private setTokenCookies(response: express.Response, accessToken: string, refreshToken: string) {
