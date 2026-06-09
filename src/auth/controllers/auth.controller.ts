@@ -1,5 +1,6 @@
 import { Body, Controller, HttpCode, HttpStatus, Post, Res } from '@nestjs/common';
 import * as express from 'express';
+import { COOKIE_TIME } from '../constants/auth.constants';
 import { AuthDto } from '../dto/auth.dto';
 import { AuthService } from '../services/auth.service';
 
@@ -33,12 +34,12 @@ export class AuthController {
 
     response.cookie('access_token', accessToken, {
       ...cookieOptions,
-      maxAge: 15 * 60 * 1000, // 15 minutes
+      maxAge: COOKIE_TIME.ACCESS_TOKEN,
     });
 
     response.cookie('refresh_token', refreshToken, {
       ...cookieOptions,
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: COOKIE_TIME.REFRESH_TOKEN,
     });
   }
 }
