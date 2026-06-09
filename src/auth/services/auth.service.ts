@@ -89,6 +89,18 @@ export class AuthService {
       }),
     ]);
 
+    await this.updateRefreshToken(userId, refreshToken);
+
     return { accessToken, refreshToken };
+  }
+
+  private async updateRefreshToken(userId: string, refreshToken: string): Promise<void> {
+    const saltRounds = 10;
+    const hashedToken = await bcrypt.hash(refreshToken, saltRounds);
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { refreshToken: hashedToken },
+    });
   }
 }
