@@ -11,7 +11,7 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() dto: AuthDto, @Res({ passthrough: true }) response: express.Response) {
-    const user = this.authService.signUp(dto);
+    const user = await this.authService.signUp(dto);
     const tokens = await this.authService.generateTokens(user.id, user.email);
 
     this.setTokenCookies(response, tokens.accessToken, tokens.refreshToken);
