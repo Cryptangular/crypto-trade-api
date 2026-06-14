@@ -2,8 +2,10 @@ import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/co
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import * as express from 'express';
 import type { StringValue } from 'ms';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { AUTH_COOKIES, BASE_COOKIE_OPTIONS, COOKIE_TIME } from '../constants/auth.constants';
 import { AuthErrors } from '../constants/auth-errors';
 import { AuthDto } from '../dto/auth.dto';
 
@@ -102,6 +104,35 @@ export class AuthService {
     await this.prisma.user.update({
       where: { id: userId },
       data: { refreshToken: hashedToken },
+    });
+  }
+
+  async validateUser(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    return {
+      id: user.id,
+      email: user.email,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+  }
+
+  setAuthCookies(response: express.Response, tokens: { accessToken: string; refreshToken: string }) {
+    response.cookie(AUTH_COOKIES.ACCESS, tokens.accessToken, {
+      ...BASE_COOKIE_OPTIONS,
+      maxAge: COOKIE_TIME.ACCESS_TOKEN,
+    });
+
+    response.cookie(AUTH_COOKIES.REFRESH, tokens.refreshToken, {
+      ...BASE_COOKIE_OPTIONS,
+      maxAge: COOKIE_TIME.REFRESH_TOKEN,
     });
   }
 }

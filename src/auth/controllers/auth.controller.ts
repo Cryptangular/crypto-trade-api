@@ -1,6 +1,5 @@
 import { Body, Controller, HttpCode, HttpStatus, Post, Res } from '@nestjs/common';
 import * as express from 'express';
-import { COOKIE_TIME } from '../constants/auth.constants';
 import { AuthDto } from '../dto/auth.dto';
 import { AuthService } from '../services/auth.service';
 
@@ -14,7 +13,7 @@ export class AuthController {
     const user = await this.authService.signUp(dto);
     const tokens = await this.authService.generateTokens(user.id, user.email);
 
-    this.setTokenCookies(response, tokens.accessToken, tokens.refreshToken);
+    this.authService.setAuthCookies(response, tokens);
 
     return user;
   }
@@ -26,26 +25,8 @@ export class AuthController {
 
     const tokens = await this.authService.generateTokens(user.id, user.email);
 
-    this.setTokenCookies(response, tokens.accessToken, tokens.refreshToken);
+    this.authService.setAuthCookies(response, tokens);
 
     return user;
-  }
-
-  private setTokenCookies(response: express.Response, accessToken: string, refreshToken: string) {
-    const cookieOptions = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict' as const,
-    };
-
-    response.cookie('access_token', accessToken, {
-      ...cookieOptions,
-      maxAge: COOKIE_TIME.ACCESS_TOKEN,
-    });
-
-    response.cookie('refresh_token', refreshToken, {
-      ...cookieOptions,
-      maxAge: COOKIE_TIME.REFRESH_TOKEN,
-    });
   }
 }
