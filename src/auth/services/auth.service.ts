@@ -8,6 +8,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { AUTH_COOKIES, BASE_COOKIE_OPTIONS, COOKIE_TIME } from '../constants/auth.constants';
 import { AuthErrors } from '../constants/auth-errors';
 import { AuthDto } from '../dto/auth.dto';
+import { ActiveUser } from '../types/active-user.interface';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +18,7 @@ export class AuthService {
     private prisma: PrismaService,
   ) {}
 
-  async signUp(dto: AuthDto) {
+  async signUp(dto: AuthDto): Promise<ActiveUser> {
     const { email, password } = dto;
 
     const existingUser = await this.prisma.user.findUnique({
@@ -46,7 +47,7 @@ export class AuthService {
     };
   }
 
-  async signIn(dto: AuthDto) {
+  async signIn(dto: AuthDto): Promise<ActiveUser> {
     const { email, password } = dto;
 
     const user = await this.prisma.user.findUnique({
@@ -107,7 +108,7 @@ export class AuthService {
     });
   }
 
-  async validateUser(userId: string) {
+  async validateUser(userId: string): Promise<ActiveUser | null> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
@@ -136,7 +137,7 @@ export class AuthService {
     });
   }
 
-  async validateRefreshToken(userId: string, refreshToken: string) {
+  async validateRefreshToken(userId: string, refreshToken: string): Promise<ActiveUser | null> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
