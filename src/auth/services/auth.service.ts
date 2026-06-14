@@ -135,4 +135,33 @@ export class AuthService {
       maxAge: COOKIE_TIME.REFRESH_TOKEN,
     });
   }
+
+  async validateRefreshToken(userId: string, refreshToken: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user?.refreshToken) {
+      return null;
+    }
+
+    const isRefreshTokenValid = await bcrypt.compare(refreshToken, user.refreshToken);
+    if (!isRefreshTokenValid) {
+      return null;
+    }
+
+    return {
+      id: user.id,
+      email: user.email,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+  }
+
+  async removeRefreshToken(userId: string) {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { refreshToken: null },
+    });
+  }
 }
