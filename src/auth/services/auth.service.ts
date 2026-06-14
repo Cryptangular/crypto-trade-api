@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import type { StringValue } from 'ms';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { AuthErrors } from '../constants/auth-errors';
 import { AuthDto } from '../dto/auth.dto';
 
 @Injectable()
@@ -22,7 +23,7 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new ConflictException('User with this email already exists');
+      throw new ConflictException(AuthErrors.EMAIL_ALREADY_EXISTS);
     }
 
     const saltRounds = 12;
