@@ -1,14 +1,14 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
-import * as express from 'express';
 import type { StringValue } from 'ms';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { AUTH_COOKIES, BASE_COOKIE_OPTIONS, COOKIE_TIME } from '../constants/auth.constants';
+import { SECURITY_CONFIG } from '../constants/auth.constants';
 import { AuthErrors } from '../constants/auth-errors';
 import { AuthDto } from '../dto/auth.dto';
-import { ActiveUser } from '../types/active-user.interface';
+import { ActiveUser } from '../types/active-user';
 
 @Injectable()
 export class AuthService {
@@ -19,68 +19,52 @@ export class AuthService {
   ) {}
 
   async signUp(dto: AuthDto): Promise<ActiveUser> {
-    const { email, password } = dto;
-
     const existingUser = await this.prisma.user.findUnique({
-      where: { email },
+      where: { email: dto.email },
     });
 
     if (existingUser) {
       throw new ConflictException(AuthErrors.EMAIL_ALREADY_EXISTS);
     }
 
-    const saltRounds = 12;
-    const passwordHash = await bcrypt.hash(password, saltRounds);
+    const passwordHash = await bcrypt.hash(dto.password, SECURITY_CONFIG.SALT_ROUNDS_PASSWORD);
 
     const user = await this.prisma.user.create({
       data: {
-        email,
+        email: dto.email,
         passwordHash,
       },
     });
 
-    return {
-      id: user.id,
-      email: user.email,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    };
+    return this.mapToActiveUser(user);
   }
 
   async signIn(dto: AuthDto): Promise<ActiveUser> {
-    const { email, password } = dto;
-
     const user = await this.prisma.user.findUnique({
-      where: { email },
+      where: { email: dto.email },
     });
 
     if (!user) {
-      throw new UnauthorizedException('Incorrect email or password');
+      throw new UnauthorizedException(AuthErrors.INVALID_CREDENTIALS);
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+    const isPasswordValid = await bcrypt.compare(dto.password, user.passwordHash);
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Incorrect email or password');
+      throw new UnauthorizedException(AuthErrors.INVALID_CREDENTIALS);
     }
-
-    return {
-      id: user.id,
-      email: user.email,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    };
+    return this.mapToActiveUser(user);
   }
 
   async generateTokens(userId: string, email: string) {
     const payload = { sub: userId, email };
 
-    const accessSecret = this.configService.get<string>('JWT_ACCESS_SECRET') || 'default_access';
+    const accessSecret = this.configService.get<string>('JWT_ACCESS_SECRET');
 
-    const accessExpires = this.configService.get<StringValue>('JWT_ACCESS_EXPIRATION') || '15m';
+    const accessExpires = this.configService.get<StringValue>('JWT_ACCESS_EXPIRATION');
 
-    const refreshSecret = this.configService.get<string>('JWT_REFRESH_SECRET') || 'default_refresh';
-    const refreshExpires = this.configService.get<StringValue>('JWT_REFRESH_EXPIRATION') || '7d';
+    const refreshSecret = this.configService.get<string>('JWT_REFRESH_SECRET');
+    const refreshExpires = this.configService.get<StringValue>('JWT_REFRESH_EXPIRATION');
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
@@ -99,41 +83,11 @@ export class AuthService {
   }
 
   private async updateRefreshToken(userId: string, refreshToken: string): Promise<void> {
-    const saltRounds = 10;
-    const hashedToken = await bcrypt.hash(refreshToken, saltRounds);
+    const hashedToken = await bcrypt.hash(refreshToken, SECURITY_CONFIG.SALT_ROUNDS_REFRESH);
 
     await this.prisma.user.update({
       where: { id: userId },
       data: { refreshToken: hashedToken },
-    });
-  }
-
-  async validateUser(userId: string): Promise<ActiveUser | null> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
-
-    if (!user) {
-      return null;
-    }
-
-    return {
-      id: user.id,
-      email: user.email,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    };
-  }
-
-  setAuthCookies(response: express.Response, tokens: { accessToken: string; refreshToken: string }) {
-    response.cookie(AUTH_COOKIES.ACCESS, tokens.accessToken, {
-      ...BASE_COOKIE_OPTIONS,
-      maxAge: COOKIE_TIME.ACCESS_TOKEN,
-    });
-
-    response.cookie(AUTH_COOKIES.REFRESH, tokens.refreshToken, {
-      ...BASE_COOKIE_OPTIONS,
-      maxAge: COOKIE_TIME.REFRESH_TOKEN,
     });
   }
 
@@ -151,12 +105,7 @@ export class AuthService {
       return null;
     }
 
-    return {
-      id: user.id,
-      email: user.email,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    };
+    return this.mapToActiveUser(user);
   }
 
   async removeRefreshToken(userId: string) {
@@ -164,5 +113,14 @@ export class AuthService {
       where: { id: userId },
       data: { refreshToken: null },
     });
+  }
+
+  private mapToActiveUser(user: User): ActiveUser {
+    return {
+      id: user.id,
+      email: user.email,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
   }
 }

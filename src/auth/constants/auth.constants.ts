@@ -1,6 +1,4 @@
 export const COOKIE_TIME = {
-  //  ACCESS_TOKEN: 15 * 60 * 1000, // 15 минут
-  // REFRESH_TOKEN: 7 * 24 * 60 * 60 * 1000, // 7 дней
   ACCESS_TOKEN: 15 * 60 * 1000, // 15 минут
   REFRESH_TOKEN: 7 * 24 * 60 * 60 * 1000, // 7 дней
 } as const;
@@ -15,3 +13,15 @@ export const BASE_COOKIE_OPTIONS = {
   secure: process.env.NODE_ENV === 'production',
   sameSite: 'strict' as const,
 };
+
+export const SECURITY_CONFIG = {
+  SALT_ROUNDS_PASSWORD: 12,
+  SALT_ROUNDS_REFRESH: 10,
+} as const;
+
+export const APP_CONFIG = {
+  PORT: 3000,
+  HOST: '0.0.0.0',
+  GLOBAL_PREFIX: 'api',
+  CORS_ORIGIN: 'http://localhost:4200',
+} as const;
