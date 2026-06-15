@@ -55,4 +55,14 @@ export class AuthController {
       maxAge: COOKIE_TIME.REFRESH_TOKEN,
     });
   }
+
+  @Post('logout')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async logout(@GetUser() user: ActiveUser, @Res({ passthrough: true }) response: express.Response): Promise<void> {
+    await this.authService.removeRefreshToken(user.id);
+
+    response.clearCookie(AUTH_COOKIES.ACCESS, BASE_COOKIE_OPTIONS);
+    response.clearCookie(AUTH_COOKIES.REFRESH, BASE_COOKIE_OPTIONS);
+  }
 }
