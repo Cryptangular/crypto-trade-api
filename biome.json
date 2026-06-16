@@ -119,6 +119,9 @@
     }
   },
   "javascript": {
+    "parser": {
+      "unsafeParameterDecoratorsEnabled": true
+    },
     "formatter": {
       "quoteStyle": "single",
       "jsxQuoteStyle": "double",
@@ -131,7 +134,16 @@
       "bracketSpacing": true
     },
     "globals": [
-      "exports"
+      "exports",
+      "describe",
+      "it",
+      "test",
+      "expect",
+      "beforeEach",
+      "afterEach",
+      "beforeAll",
+      "afterAll",
+      "vi"
     ]
   },
   "json": {
@@ -156,9 +168,7 @@
   },
   "overrides": [
     {
-      "includes": [
-        "**/*.d.ts"
-      ],
+      "includes": ["**/*.d.ts"],
       "linter": {
         "rules": {
           "correctness": {
@@ -168,11 +178,7 @@
       }
     },
     {
-      "includes": [
-        "test/**",
-        "**/*.spec.ts",
-        "**/*.e2e-spec.ts"
-      ],
+      "includes": ["test/**", "**/*.spec.ts", "**/*.e2e-spec.ts"],
       "linter": {
         "rules": {
           "suspicious": {
