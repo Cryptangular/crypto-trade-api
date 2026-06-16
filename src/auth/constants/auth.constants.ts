@@ -18,10 +18,3 @@ export const SECURITY_CONFIG = {
   SALT_ROUNDS_PASSWORD: 12,
   SALT_ROUNDS_REFRESH: 10,
 } as const;
-
-export const APP_CONFIG = {
-  PORT: 3000,
-  HOST: '0.0.0.0',
-  GLOBAL_PREFIX: 'api',
-  CORS_ORIGIN: 'http://localhost:4200',
-} as const;
