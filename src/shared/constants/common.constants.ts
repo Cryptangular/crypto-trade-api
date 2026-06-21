@@ -1,3 +1,0 @@
-export const COMMON_CONFIG = {
-  UNKNOWN_ERROR: 'UNKNOWN_ERROR',
-};
