@@ -10,7 +10,7 @@ generator client {
 model UserSettings {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
+  updatedAt DateTime @updatedAt
   apiKey    String
   secretKey String
   userId    String   @unique
