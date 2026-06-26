@@ -1,13 +1,18 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, Logger } from '@nestjs/common';
 import { Response } from 'express';
 import { SETTINGS_CODES } from '../constants/constants';
 
 @Catch(HttpException)
 export class SettingsFilter implements ExceptionFilter {
+  private readonly logger = new Logger(SettingsFilter.name);
+
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const status = exception.getStatus();
+    const resBody = exception.getResponse();
+
+    this.logger.error(`Status: ${status} | Message: ${JSON.stringify(resBody)}`, exception.stack);
 
     response.status(status).json({
       data: null,
