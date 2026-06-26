@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BinanceService } from './binance-service.service';
+import { BinanceService } from './binance.service';
 
 describe('BinanceServiceService', () => {
   let service: BinanceService;

@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { BinanceService } from 'src/shared/services/binance-service.service';
-import { CipherService } from 'src/shared/services/cipher-service.service';
+import { BinanceService } from 'src/shared/services/binance.service';
+import { CipherService } from 'src/shared/services/cipher.service';
 import { SettingsService } from './settings.service';
 
 describe('SettingsService', () => {

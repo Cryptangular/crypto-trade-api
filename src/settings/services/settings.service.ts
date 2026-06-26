@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { BinanceService } from 'src/shared/services/binance-service.service';
-import { CipherService } from 'src/shared/services/cipher-service.service';
+import { BinanceService } from 'src/shared/services/binance.service';
+import { CipherService } from 'src/shared/services/cipher.service';
 import { SETTINGS_CODES } from '../constants/constants';
 import { SettingsRequestDto } from '../dto/settings.dto';
 

@@ -1,6 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import { CipherService } from './cipher-service.service';
+import { CipherService } from './cipher.service';
 
 describe('CipherService', () => {
   let service: CipherService;
