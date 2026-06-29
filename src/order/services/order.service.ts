@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { BinanceOrderService } from 'src/order/services/binance-order.service';
-import { BinanceOrderBookResponse } from 'src/shared/types/order.types';
+import { BinanceOrderBookResponse } from 'src/order/types/order.types';
 
 @Injectable()
 export class OrderService {

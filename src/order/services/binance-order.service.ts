@@ -2,8 +2,8 @@ import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common
 import type { AxiosInstance } from 'axios';
 import { BINANCE_CONFIG, BINANCE_HTTP_CLIENT } from 'src/binance/constants/binance.constants';
 import { BinanceBaseService } from 'src/binance/services/binance-base.service';
+import { BinanceOrderBookResponse } from 'src/order/types/order.types';
 import { COMMON_ERRORS_CODES } from 'src/shared/constants/common.constants';
-import { BinanceOrderBookResponse } from 'src/shared/types/order.types';
 
 @Injectable()
 export class BinanceOrderService extends BinanceBaseService {
