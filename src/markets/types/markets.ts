@@ -10,4 +10,7 @@ export interface MarketToken {
 
 export class MarketsResponse {
   data!: MarketToken[];
+  total!: number;
+  page!: number;
+  limit!: number;
 }

@@ -44,9 +44,17 @@ export class MarketsService {
     }
   }
 
-  getAllTokens(): MarketsResponse {
+  getTokens(page: number = 1, limit: number = 10): MarketsResponse {
+    const total = this.tokensCache.length;
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedData = this.tokensCache.slice(startIndex, endIndex);
+
     return {
-      data: this.tokensCache,
+      data: paginatedData,
+      total,
+      page,
+      limit,
     };
   }
 
