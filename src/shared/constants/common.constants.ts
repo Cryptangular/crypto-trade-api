@@ -1,0 +1,3 @@
+export const COMMON_ERRORS_CODES = {
+  UNKNOWN_ERROR: 'UNKNOWN_ERROR',
+};
