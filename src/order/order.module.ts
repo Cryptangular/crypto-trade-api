@@ -2,11 +2,12 @@ import { Module } from '@nestjs/common';
 import { BinanceModule } from 'src/binance/binance.module';
 import { SharedModule } from 'src/shared/shared.module';
 import { OrderController } from './controllers/order.controller';
+import { BinanceOrderService } from './services/binance-order.service';
 import { OrderService } from './services/order.service';
 
 @Module({
   imports: [SharedModule, BinanceModule],
   controllers: [OrderController],
-  providers: [OrderService],
+  providers: [OrderService, BinanceOrderService],
 })
 export class OrderModule {}
