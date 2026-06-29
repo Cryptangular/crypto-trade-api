@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { BINANCE_HTTP_CLIENT } from '../constants/binance.constants';
 import { BinanceSecurityService } from './binance-security.service';
 
 describe('BinanceSecurityService', () => {
@@ -6,7 +7,13 @@ describe('BinanceSecurityService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [BinanceSecurityService],
+      providers: [
+        BinanceSecurityService,
+        {
+          provide: BINANCE_HTTP_CLIENT,
+          useValue: {},
+        },
+      ],
     }).compile();
 
     service = module.get<BinanceSecurityService>(BinanceSecurityService);
