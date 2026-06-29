@@ -3,7 +3,6 @@ import axios from 'axios';
 import { BINANCE_CONFIG, BINANCE_HTTP_CLIENT } from './constants/binance.constants';
 import { BinanceWsGateway } from './gateways/binance-ws.gateway';
 import { BinanceBaseService } from './services/binance-base.service';
-import { BinanceOrderService } from './services/binance-order.service';
 import { BinanceSecurityService } from './services/binance-security.service';
 
 @Module({
@@ -12,7 +11,6 @@ import { BinanceSecurityService } from './services/binance-security.service';
     BinanceBaseService,
     BinanceSecurityService,
     BinanceWsGateway,
-    BinanceOrderService,
     {
       provide: BINANCE_HTTP_CLIENT,
       useFactory: () => {
@@ -23,6 +21,6 @@ import { BinanceSecurityService } from './services/binance-security.service';
       },
     },
   ],
-  exports: [BinanceBaseService, BinanceSecurityService, BinanceWsGateway, BinanceOrderService],
+  exports: [BinanceBaseService, BinanceSecurityService, BinanceWsGateway, BINANCE_HTTP_CLIENT],
 })
 export class BinanceModule {}
