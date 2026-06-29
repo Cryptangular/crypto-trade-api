@@ -1,7 +1,7 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
+import { BinanceSecurityService } from 'src/binance/services/binance-security.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { BinanceService } from 'src/shared/services/binance.service';
 import { CipherService } from 'src/shared/services/cipher.service';
 import { SETTINGS_CODES } from '../constants/constants';
 import { SettingsRequestDto } from '../dto/settings.dto';
@@ -13,7 +13,7 @@ export class SettingsService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly cipherService: CipherService,
-    private readonly binanceService: BinanceService,
+    private readonly binanceSecurityService: BinanceSecurityService,
   ) {}
 
   async getSettings(userId: string) {
@@ -23,28 +23,31 @@ export class SettingsService {
   async setSettings(userId: string, settingsDto: SettingsRequestDto) {
     const { apiKey, secretKey } = settingsDto;
 
-    const isValid = await this.binanceService.testConnection(apiKey, secretKey);
+    try {
+      await this.binanceSecurityService.testConnection(apiKey, secretKey);
 
-    if (!isValid) {
-      throw new BadRequestException(SETTINGS_CODES.INVALID_KEYS);
+      const encryptedSecretKey = this.cipherService.encrypt(secretKey);
+
+      return await this.prismaService.userSettings.upsert({
+        where: {
+          userId,
+        },
+        update: {
+          apiKey,
+          secretKey: encryptedSecretKey,
+        },
+        create: {
+          userId,
+          apiKey,
+          secretKey: encryptedSecretKey,
+        },
+      });
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw new BadRequestException(SETTINGS_CODES.INVALID_KEYS);
+      }
+      throw new InternalServerErrorException(SETTINGS_CODES.UNKNOWN_ERROR);
     }
-
-    const encryptedSecretKey = this.cipherService.encrypt(secretKey);
-
-    return await this.prismaService.userSettings.upsert({
-      where: {
-        userId,
-      },
-      update: {
-        apiKey,
-        secretKey: encryptedSecretKey,
-      },
-      create: {
-        userId,
-        apiKey,
-        secretKey: encryptedSecretKey,
-      },
-    });
   }
 
   async removeSettings(userId: string) {
