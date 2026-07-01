@@ -4,6 +4,7 @@ export const BINANCE_CONFIG = {
   ENDPOINTS: {
     TIME: '/api/v3/time',
     ACCOUNT: '/api/v3/account',
+    KLINES: 'api/v3/klines',
   },
   HEADERS: {
     API_KEY: 'X-MBX-APIKEY',

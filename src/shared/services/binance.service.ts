@@ -3,6 +3,7 @@ import { BadRequestException, Injectable, InternalServerErrorException, Logger }
 import axios, { AxiosInstance } from 'axios';
 import { SETTINGS_CODES } from 'src/settings/constants/constants';
 import { BINANCE_CONFIG } from '../constants/binance.constants';
+import { BinanceKlineRaw } from '../types/trade.types';
 
 @Injectable()
 export class BinanceService {
@@ -45,6 +46,29 @@ export class BinanceService {
           throw new BadRequestException(SETTINGS_CODES.INVALID_KEYS);
         }
         throw new InternalServerErrorException(SETTINGS_CODES.UNKNOWN_ERROR);
+      }
+      throw new InternalServerErrorException(SETTINGS_CODES.UNKNOWN_ERROR);
+    }
+  }
+
+  async getHistoricalKlines(symbol: string, interval: string): Promise<BinanceKlineRaw[]> {
+    try {
+      const response = await this.httpClient.get(BINANCE_CONFIG.ENDPOINTS.KLINES, {
+        params: {
+          symbol: symbol.toUpperCase(),
+          interval: interval,
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      this.logger.error(
+        `Failed to fetch klines for ${symbol} (${interval})`,
+        error instanceof Error ? error.message : String(error),
+      );
+
+      if (axios.isAxiosError(error)) {
+        throw new BadRequestException(error.response?.data?.msg || 'Failed to fetch data from Binance');
       }
       throw new InternalServerErrorException(SETTINGS_CODES.UNKNOWN_ERROR);
     }
