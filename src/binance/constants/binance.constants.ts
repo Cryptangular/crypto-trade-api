@@ -7,6 +7,7 @@ export const BINANCE_CONFIG = {
     TIME: '/api/v3/time',
     ACCOUNT: '/api/v3/account',
     DEPTH: '/api/v3/depth',
+    KLINES: 'api/v3/klines',
   },
   HEADERS: {
     API_KEY: 'X-MBX-APIKEY',
