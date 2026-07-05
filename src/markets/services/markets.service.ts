@@ -44,11 +44,25 @@ export class MarketsService {
     }
   }
 
-  getTokens(page: number = 1, limit: number = 10, sortBy?: string, sortOrder: 'asc' | 'desc' = 'asc'): MarketsResponse {
-    const sortedData = [...this.tokensCache];
+  getTokens(
+    page: number = 1,
+    limit: number = 10,
+    sortBy?: string,
+    sortOrder: 'asc' | 'desc' = 'asc',
+    search?: string,
+  ): MarketsResponse {
+    let filteredData = [...this.tokensCache];
+
+    if (search) {
+      const searchLower = search.toLowerCase().trim();
+
+      filteredData = filteredData.filter((token) => {
+        return token.symbol.toLowerCase().includes(searchLower) || token.baseAsset.toLowerCase().includes(searchLower);
+      });
+    }
 
     if (sortBy) {
-      sortedData.sort((a, b) => {
+      filteredData.sort((a, b) => {
         const valA = a[sortBy as keyof MarketToken];
         const valB = b[sortBy as keyof MarketToken];
 
@@ -63,10 +77,10 @@ export class MarketsService {
       });
     }
 
-    const total = sortedData.length;
+    const total = filteredData.length;
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + limit;
-    const paginatedData = sortedData.slice(startIndex, endIndex);
+    const paginatedData = filteredData.slice(startIndex, endIndex);
 
     return {
       data: paginatedData,
