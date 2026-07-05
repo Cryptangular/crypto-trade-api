@@ -44,11 +44,29 @@ export class MarketsService {
     }
   }
 
-  getTokens(page: number = 1, limit: number = 10): MarketsResponse {
-    const total = this.tokensCache.length;
+  getTokens(page: number = 1, limit: number = 10, sortBy?: string, sortOrder: 'asc' | 'desc' = 'asc'): MarketsResponse {
+    const sortedData = [...this.tokensCache];
+
+    if (sortBy) {
+      sortedData.sort((a, b) => {
+        const valA = a[sortBy as keyof MarketToken];
+        const valB = b[sortBy as keyof MarketToken];
+
+        if (typeof valA === 'number' && typeof valB === 'number') {
+          return sortOrder === 'asc' ? valA - valB : valB - valA;
+        }
+
+        const strA = String(valA ?? '');
+        const strB = String(valB ?? '');
+
+        return sortOrder === 'asc' ? strA.localeCompare(strB) : strB.localeCompare(strA);
+      });
+    }
+
+    const total = sortedData.length;
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + limit;
-    const paginatedData = this.tokensCache.slice(startIndex, endIndex);
+    const paginatedData = sortedData.slice(startIndex, endIndex);
 
     return {
       data: paginatedData,
@@ -115,9 +133,9 @@ export class MarketsService {
       symbol: raw.symbol,
       baseAsset: meta?.base ?? raw.symbol,
       quoteAsset: meta?.quote ?? '',
-      price: priceNum.toString(),
-      change24h: changeNum.toFixed(2),
-      volume24h: volumeNum.toString(),
+      price: priceNum,
+      change24h: changeNum,
+      volume24h: volumeNum,
     };
   }
 }

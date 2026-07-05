@@ -8,6 +8,6 @@ export class MarketsController {
   constructor(private readonly marketsService: MarketsService) {}
   @Get()
   getTokens(@Query() query: PaginationDto): MarketsResponse {
-    return this.marketsService.getTokens(query.page, query.limit);
+    return this.marketsService.getTokens(query.page, query.limit, query.sortBy, query.sortOrder);
   }
 }

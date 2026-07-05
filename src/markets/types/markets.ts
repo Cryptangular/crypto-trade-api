@@ -2,9 +2,9 @@ export interface MarketToken {
   symbol: string;
   baseAsset: string;
   quoteAsset: string;
-  price: string;
-  change24h: string;
-  volume24h: string;
+  price: number;
+  change24h: number;
+  volume24h: number;
   marketCap?: number;
 }
 
