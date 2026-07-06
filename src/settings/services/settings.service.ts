@@ -1,10 +1,11 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BinanceService } from 'src/shared/services/binance.service';
 import { CipherService } from 'src/shared/services/cipher.service';
 import { SETTINGS_CODES } from '../constants/constants';
 import { SettingsRequestDto } from '../dto/settings.dto';
+import { SettingsResponse } from '../types/types';
 
 @Injectable()
 export class SettingsService {
@@ -23,28 +24,31 @@ export class SettingsService {
   async setSettings(userId: string, settingsDto: SettingsRequestDto) {
     const { apiKey, secretKey } = settingsDto;
 
-    const isValid = await this.binanceService.testConnection(apiKey, secretKey);
+    try {
+      await this.binanceService.testConnection(apiKey, secretKey);
 
-    if (!isValid) {
-      throw new BadRequestException(SETTINGS_CODES.INVALID_KEYS);
+      const encryptedSecretKey = this.cipherService.encrypt(secretKey);
+
+      return await this.prismaService.userSettings.upsert({
+        where: {
+          userId,
+        },
+        update: {
+          apiKey,
+          secretKey: encryptedSecretKey,
+        },
+        create: {
+          userId,
+          apiKey,
+          secretKey: encryptedSecretKey,
+        },
+      });
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw new BadRequestException(SETTINGS_CODES.INVALID_KEYS);
+      }
+      throw new InternalServerErrorException(SETTINGS_CODES.UNKNOWN_ERROR);
     }
-
-    const encryptedSecretKey = this.cipherService.encrypt(secretKey);
-
-    return await this.prismaService.userSettings.upsert({
-      where: {
-        userId,
-      },
-      update: {
-        apiKey,
-        secretKey: encryptedSecretKey,
-      },
-      create: {
-        userId,
-        apiKey,
-        secretKey: encryptedSecretKey,
-      },
-    });
   }
 
   async removeSettings(userId: string) {
@@ -58,6 +62,26 @@ export class SettingsService {
       }
 
       throw new InternalServerErrorException(SETTINGS_CODES.REMOVE_FAILED);
+    }
+  }
+
+  async getConnectionStatus(userId: string): Promise<SettingsResponse<null>> {
+    try {
+      const settings = await this.getSettings(userId);
+
+      if (!settings) {
+        return { code: SETTINGS_CODES.CONNECTION_OFF, data: null };
+      }
+
+      const { apiKey, secretKey } = settings;
+
+      const decryptedSecretKey = this.cipherService.decrypt(secretKey);
+
+      await this.binanceService.testConnection(apiKey, decryptedSecretKey);
+
+      return { code: SETTINGS_CODES.CONNECTION_ON, data: null };
+    } catch {
+      return { code: SETTINGS_CODES.CONNECTION_OFF, data: null };
     }
   }
 }
