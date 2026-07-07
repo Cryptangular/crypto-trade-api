@@ -30,6 +30,11 @@ export class SettingsController {
     };
   }
 
+  @Get('connection-status')
+  async getConnectionStatus(@GetUser() user: ActiveUser): Promise<SettingsResponse<void>> {
+    return await this.settingsService.getConnectionStatus(user.id);
+  }
+
   @Post()
   @UsePipes(new SettingsValidationPipe())
   @HttpCode(HttpStatus.OK)
