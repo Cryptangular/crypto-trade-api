@@ -1,5 +1,7 @@
 export const BINANCE_CONFIG = {
   BASE_URL: 'https://testnet.binance.vision',
+  WS_BASE_URL: 'wss://stream.testnet.binance.vision/ws',
+  NAMESPACE: '/api',
   TIMEOUT: 5000,
   ENDPOINTS: {
     TIME: '/api/v3/time',
