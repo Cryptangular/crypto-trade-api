@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
+import { BinanceSecurityService } from 'src/binance/services/binance-security.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { BinanceService } from 'src/shared/services/binance.service';
 import { CipherService } from 'src/shared/services/cipher.service';
 import { SETTINGS_CODES } from '../constants/constants';
 import { SettingsRequestDto } from '../dto/settings.dto';
@@ -14,7 +14,7 @@ export class SettingsService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly cipherService: CipherService,
-    private readonly binanceService: BinanceService,
+    private readonly binanceSecurityService: BinanceSecurityService,
   ) {}
 
   async getSettings(userId: string) {
@@ -25,7 +25,7 @@ export class SettingsService {
     const { apiKey, secretKey } = settingsDto;
 
     try {
-      await this.binanceService.testConnection(apiKey, secretKey);
+      await this.binanceSecurityService.testConnection(apiKey, secretKey);
 
       const encryptedSecretKey = this.cipherService.encrypt(secretKey);
 
@@ -77,7 +77,7 @@ export class SettingsService {
 
       const decryptedSecretKey = this.cipherService.decrypt(secretKey);
 
-      await this.binanceService.testConnection(apiKey, decryptedSecretKey);
+      await this.binanceSecurityService.testConnection(apiKey, decryptedSecretKey);
 
       return { code: SETTINGS_CODES.CONNECTION_ON, data: null };
     } catch {

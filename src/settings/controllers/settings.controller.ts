@@ -1,28 +1,15 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Post,
-  UseFilters,
-  UseGuards,
-  UsePipes,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Post, UseGuards, UsePipes } from '@nestjs/common';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { ActiveUser } from 'src/auth/types/active-user';
 import { SETTINGS_CODES } from '../constants/constants';
 import { SettingsRequestDto, SettingsResponseDTO } from '../dto/settings.dto';
-import { SettingsFilter } from '../exception-filters/settings.filter';
 import { SettingsValidationPipe } from '../pipes/settings-validation.pipe';
 import { SettingsService } from '../services/settings.service';
 import { SettingsResponse } from '../types/types';
 
 @Controller('settings')
 @UseGuards(JwtAuthGuard)
-@UseFilters(SettingsFilter)
 export class SettingsController {
   constructor(private readonly settingsService: SettingsService) {}
 

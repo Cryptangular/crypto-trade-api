@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
-import { BinanceService } from './services/binance.service';
 import { CipherService } from './services/cipher.service';
 
 @Module({
-  providers: [CipherService, BinanceService],
-  exports: [CipherService, BinanceService],
+  providers: [CipherService],
+  exports: [CipherService],
 })
 export class SharedModule {}
