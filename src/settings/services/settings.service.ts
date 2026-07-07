@@ -27,7 +27,6 @@ export class SettingsService {
     try {
       await this.binanceSecurityService.testConnection(apiKey, secretKey);
 
-
       const encryptedSecretKey = this.cipherService.encrypt(secretKey);
 
       return await this.prismaService.userSettings.upsert({
