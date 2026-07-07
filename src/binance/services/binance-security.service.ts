@@ -29,7 +29,7 @@ export class BinanceSecurityService extends BinanceBaseService {
       if (axios.isAxiosError(error) && error.response?.status === 401) {
         throw new UnauthorizedException(BINANCE_CODES.BINANCE_INVALID_CREDENTIALS);
       }
-      throw new InternalServerErrorException(BINANCE_CODES.BINANCE_UNREACHEABLE);
+      throw new InternalServerErrorException(BINANCE_CODES.BINANCE_UNREACHABLE);
     }
   }
 }
