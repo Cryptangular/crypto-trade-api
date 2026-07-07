@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import type { AxiosInstance } from 'axios';
-import { BINANCE_CONFIG, BINANCE_HTTP_CLIENT } from '../constants/binance.constants';
+import { BINANCE_CONFIG } from '../config/binance.config';
+import { BINANCE_HTTP_CLIENT } from '../constants/binance.constants';
 import { BinanceTimeResponse } from '../types/types';
 
 @Injectable()

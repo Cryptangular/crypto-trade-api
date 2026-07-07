@@ -1,24 +1,11 @@
 import { Module } from '@nestjs/common';
-import axios from 'axios';
-import { BINANCE_CONFIG, BINANCE_HTTP_CLIENT } from './constants/binance.constants';
+import { binanceHttpProvider } from './providers/binance-http.provider';
 import { BinanceBaseService } from './services/binance-base.service';
 import { BinanceSecurityService } from './services/binance-security.service';
 
 @Module({
   imports: [],
-  providers: [
-    BinanceBaseService,
-    BinanceSecurityService,
-    {
-      provide: BINANCE_HTTP_CLIENT,
-      useFactory: () => {
-        return axios.create({
-          baseURL: BINANCE_CONFIG.BASE_URL,
-          timeout: BINANCE_CONFIG.TIMEOUT,
-        });
-      },
-    },
-  ],
-  exports: [BinanceBaseService, BinanceSecurityService, BINANCE_HTTP_CLIENT],
+  providers: [binanceHttpProvider, BinanceBaseService, BinanceSecurityService],
+  exports: [binanceHttpProvider, BinanceBaseService, BinanceSecurityService],
 })
 export class BinanceModule {}

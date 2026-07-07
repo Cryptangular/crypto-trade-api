@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import axios from 'axios';
-import { BINANCE_CODES, BINANCE_CONFIG } from 'src/binance/constants/binance.constants';
+import { BINANCE_CONFIG } from 'src/binance/config/binance.config';
+import { BINANCE_CODES } from 'src/binance/constants/binance.constants';
 import { BinanceBaseService } from 'src/binance/services/binance-base.service';
 import { BinanceKlineRaw } from '../types/trade.types';
 

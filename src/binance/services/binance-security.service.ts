@@ -1,7 +1,8 @@
 import * as crypto from 'node:crypto';
 import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import axios from 'axios';
-import { BINANCE_CODES, BINANCE_CONFIG } from '../constants/binance.constants';
+import { BINANCE_CONFIG } from '../config/binance.config';
+import { BINANCE_CODES } from '../constants/binance.constants';
 import { BinanceBaseService } from './binance-base.service';
 
 @Injectable()
