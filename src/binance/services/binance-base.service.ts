@@ -10,8 +10,8 @@ export class BinanceBaseService {
 
   constructor(@Inject(BINANCE_HTTP_CLIENT) protected readonly httpClient: AxiosInstance) {}
 
-  protected async getServerTime(): Promise<string> {
+  protected async getServerTime(): Promise<number> {
     const res = await this.httpClient.get<BinanceTimeResponse>(BINANCE_CONFIG.ENDPOINTS.TIME);
-    return res.data.serverTime.toString();
+    return res.data.serverTime;
   }
 }
