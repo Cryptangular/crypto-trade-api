@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { MarketsModule } from './markets/markets.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { SettingsModule } from './settings/settings.module';
+import { TradeModule } from './trade/trade.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { SettingsModule } from './settings/settings.module';
     PrismaModule,
     SettingsModule,
     MarketsModule,
+    TradeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
