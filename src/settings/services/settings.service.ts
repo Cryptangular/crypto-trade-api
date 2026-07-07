@@ -77,7 +77,7 @@ export class SettingsService {
 
       const decryptedSecretKey = this.cipherService.decrypt(secretKey);
 
-      await this.binanceService.testConnection(apiKey, decryptedSecretKey);
+      await this.binanceSecurityService.testConnection(apiKey, decryptedSecretKey);
 
       return { code: SETTINGS_CODES.CONNECTION_ON, data: null };
     } catch {
