@@ -8,7 +8,7 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Get('book')
-  async getOrderBookInitialState(@Query() query: GetOrderBookDto): Promise<BinanceOrderBookResponse> {
-    return await this.orderService.getOrderBookInitialState(query.symbol);
+  getOrderBookInitialState(@Query() query: GetOrderBookDto): Promise<BinanceOrderBookResponse> {
+    return this.orderService.getOrderBookInitialState(query.symbol);
   }
 }
