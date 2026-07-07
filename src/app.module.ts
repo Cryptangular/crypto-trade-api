@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { MarketsModule } from './markets/markets.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { SettingsModule } from './settings/settings.module';
 import { TradeModule } from './trade/trade.module';
@@ -16,6 +17,7 @@ import { TradeModule } from './trade/trade.module';
     AuthModule,
     PrismaModule,
     SettingsModule,
+    MarketsModule,
     TradeModule,
   ],
   controllers: [AppController],
