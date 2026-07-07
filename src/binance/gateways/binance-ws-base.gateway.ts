@@ -1,23 +1,19 @@
-import { Logger } from '@nestjs/common';
+import { Logger, OnModuleDestroy } from '@nestjs/common';
 import { WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { WebSocket } from 'ws';
+import { BINANCE_CONFIG } from '../config/binance.config';
 
-export abstract class BinanceWsBaseGateway {
-  private readonly logger: Logger = new Logger(this.constructor.name);
+export abstract class BinanceWsBaseGateway implements OnModuleDestroy {
+  protected readonly logger: Logger = new Logger(this.constructor.name);
 
   @WebSocketServer() server: Server;
 
-  private activeConnections = new Map<string, WebSocket>();
+  private readonly activeConnections = new Map<string, WebSocket>();
 
-  abstract setUrl(symbol: string): string;
+  protected abstract setUrl(symbol: string): string;
 
-  abstract handleMessage(symbol: string, data: unknown): void;
-
-  private getClientCount(symbol: string): number {
-    const room = this.server.of('api').adapter.rooms.get(symbol.toLowerCase());
-    return room ? room.size : 0;
-  }
+  protected abstract handleMessage(symbol: string, data: unknown): void;
 
   protected connectToBinance(symbol: string) {
     const sym = symbol.toLowerCase();
@@ -31,16 +27,16 @@ export abstract class BinanceWsBaseGateway {
     this.activeConnections.set(sym, ws);
 
     ws.on('open', () => {
-      this.logger.log('Connected to Binance!');
+      this.logger.log(`[WS] Connected to Binance stream: ${sym}`);
     });
 
     ws.on('close', () => {
-      this.logger.warn(`Disconnected from Binance: ${sym}`);
+      this.logger.warn(`[WS] Close Binance stream for: ${sym}`);
       this.activeConnections.delete(sym);
     });
 
     ws.on('error', (err) => {
-      this.logger.error('Error info:', err.message);
+      this.logger.error(`[WS] Binance error info for: ${sym}`, err.message);
     });
 
     ws.on('message', (data) => {
@@ -48,27 +44,43 @@ export abstract class BinanceWsBaseGateway {
         const parsed = JSON.parse(data.toString());
 
         this.handleMessage(sym, parsed);
-      } catch (e) {
-        this.logger.error(`Failed to parse Binance data for ${sym}: ${e.message}`);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        this.logger.error(`[WS] Failed to parse Binance data for ${sym}: ${message}`);
       }
     });
   }
 
-  protected handleDisconnect(client: Socket) {
-    const rooms = Array.from(client.rooms);
+  protected disconnectFromBinanceEmptyRoom(symbol: string): void {
+    const sym = symbol.toLowerCase();
+    const room = this.server.of(BINANCE_CONFIG.NAMESPACE).adapter.rooms.get(sym);
 
-    rooms.forEach((room) => {
-      if (room !== client.id) {
-        const sym = room.toLowerCase();
+    if (room?.size) {
+      return;
+    }
 
-        if (this.getClientCount(sym) === 0) {
-          const ws = this.activeConnections.get(sym);
-          if (ws) {
-            this.logger.log(`No more clients for ${sym}, closing stream.`);
-            ws.close();
-          }
-        }
-      }
-    });
+    const ws = this.activeConnections.get(sym);
+    if (!ws) {
+      return;
+    }
+
+    this.logger.log(`[WS] No more clients for ${sym}, closing Binance stream`);
+    ws.close();
+    this.activeConnections.delete(sym);
+  }
+
+  protected handleClientDisconnect(client: Socket) {
+    for (const room of client.rooms) {
+      if (room === client.id) continue;
+      this.disconnectFromBinanceEmptyRoom(room);
+    }
+  }
+
+  onModuleDestroy(): void {
+    for (const [symbol, ws] of this.activeConnections.entries()) {
+      this.logger.log(`[WS] Closing Binance WS for ${symbol}`);
+      ws.close();
+    }
+    this.activeConnections.clear();
   }
 }
